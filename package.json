@@ -1,0 +1,22 @@
+{
+  "name": "itc230",
+  "version": "1.0.0",
+  "description": "itc230 application",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davidnguyen234/itc230.git"
+  },
+  "keywords": [
+    "keywords"
+  ],
+  "author": "David Nguyen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/davidnguyen234/itc230/issues"
+  },
+  "homepage": "https://github.com/davidnguyen234/itc230"
+}
