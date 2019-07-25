@@ -4,7 +4,8 @@
   "description": "itc230 application",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "lint": "eslint **/*.js",
+    "test": "mocha test/**"
   },
   "repository": {
     "type": "git",
@@ -18,5 +19,16 @@
   "bugs": {
     "url": "https://github.com/davidnguyen234/itc230/issues"
   },
-  "homepage": "https://github.com/davidnguyen234/itc230"
+  "homepage": "https://github.com/davidnguyen234/itc230",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "express-handlebars": "^3.1.0",
+    "mongoose": "^5.6.4"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^6.0.1",
+    "mocha": "^6.1.4"
+  }
 }
