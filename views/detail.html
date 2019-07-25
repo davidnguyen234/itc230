@@ -1,0 +1,19 @@
+<html>
+    <head>
+        <title>Detail Page</title>
+    </head>
+<body>
+  <a href="/">Home</a> <br>
+
+  <h1>Detail Page!</h1>
+
+  {{#if result}}
+    <li>Title: {{result.title}}</li>
+    <li>Artist: {{result.artist}}</li>
+    <li>Release Date: {{result.releasedate}}</li><br>
+  {{else}}
+    <h2>Not Found</h2>
+  {{/if}}
+  <a href="/delete?album={{title}}">Delete Item</a>
+</body>
+</html> 

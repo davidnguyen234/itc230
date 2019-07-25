@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Home Page</title>
+    </head>
+    <body>
+        <h1>Home Page!</h1>
+
+
+    <form action="/detail" method="post">
+        <legend>Search for an Album: </legend><br>
+        <input type=text name="album">
+        <button>Submit</button>
+    </form><br>
+
+
+    {{#each albums}}
+    <h3><a href="/detail?title={{title}}">{{title}}</a></h3>
+    <ul>
+        <li>Title: {{title}}</li>
+        <li>Artist: {{artist}}</li>
+        <li>Release Date: {{releasedate}}</li>
+    </ul>
+    {{/each}}
+
+    </body>
+</html>
