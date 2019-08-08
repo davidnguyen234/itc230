@@ -1,15 +1,16 @@
 'use strict'
-const albums = require("./lib/data");
+const albums = require('./models/album');
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
+const query = require('querystring');
 
 app.set('port', process.env.PORT || 3000);
 app.use(express.static(__dirname + '/public')); // set location for static files
-app.use(bodyParser.urlencoded({extended: true})); // parse form submissions
+app.use(bodyParser.urlencoded({extended: true })); // parse form submissions
 
 const handlebars = require("express-handlebars");
-app.engine(".html", handlebars({extname: '.html', defaultLayout: false}));
+app.engine(".html", handlebars({extname: '.html', defaultLayout: false }));
 app.set("view engine", ".html");
 
 /* 
@@ -21,10 +22,24 @@ app.get('/', (req, res) => {
    });
 */
 
-// send content of 'home' view
+
 app.get('/', (req, res) => {
-  res.render('home',{name: req.query.name});
+  albums.find({}, { '_id': false }, (err, items) => {
+      if (err) return next(err);
+      res.render('home', { albums: items });
+  });
 });
+
+
+/*
+app.get('/', (req,res) => {
+  albums.getAll().then((albums) => {
+      res.render('home', {albums: albums });    
+  }).catch((err) =>{
+      return next(err);
+  });
+});
+*/
 
 // send plain text response
 app.get('/about', (req, res) => {
@@ -32,18 +47,60 @@ app.get('/about', (req, res) => {
   res.sendFile(__dirname + '/public/about.html');
 });
 
+app.post('/detail', (req, res) => {
+  albums.findOne({ 'title': req.body.title }, { '_id': false }, (err, item) => {
+      if (err) return next(err);
+      res.render('detail', { album: item });
+  })
+});
 
-app.post('/detail', (req,res) => {
-  let result = albums.getItem(req.body.album);
-  res.render('detail', {title: req.body.album, result: result})
+app.get('/detail', (req, res) => {
+  albums.findOne({'title':req.query.title}, {'_id':false}, (err, item) => {
+      if (err) return next(err);
+      res.render('detail', { album: item });
+  })
 });
 
 
-app.get('/delete', (req,res) => {
-  let result = albums.deleteItem(req.query.album); 
-  res.render('delete', {deletedItem: req.query.album, result: result});
+app.get('/delete', (req, res) => {
+  albums.deleteOne({ 'title': req.query.title }, (err, item) => {
+      if (err) return next(err);
+      albums.countDocuments((err, result) => {
+          res.render('delete', {
+              title: req.query.title, count: result});
+      })
+   })
 });
 
+
+app.get('/add', (req, res, next) => {
+  const newAlbum = parseURLtoJSON(req.url);
+  albums.updateOne({title: req.query.title}, newAlbum, {upsert:true}, (err, result) => {
+    if (err) return next(err);
+    console.log(result);   
+    albums.find({}, (err, items) => {
+      if (err) return next(err);
+      console.log(items.length);
+      res.type('text/html');
+      res.render('home', {layout:'main', title: req.query.title, result: result, found: result.nModified == 0, albums:items});
+    });
+  }); 
+});
+
+/*
+app.post('/add', (req,res) => {
+  let newAlbum = {'title':req.body.title, 'artist':req.body.artist, 'releasedate': req.body.releasedate};
+  albums.update({'title':req.body.title}, newAlbum, {upsert: true}, (err, result) => {
+      if (err) return next(err);
+      console.log(result);
+      res.render('add', {
+          title: req.body.title,
+          artist: req.body.artist,
+          releasedate: req.body.releasedate
+      });
+  });
+});
+*/
 
 
 // define 404 handler
@@ -56,6 +113,16 @@ app.use((req,res) => {
 app.listen(app.get('port'), () => {
   console.log('Express started');
 });
+
+function parseURLtoJSON(path) {
+  const itemURL = path.substr(path.indexOf('?')+1);
+  const jsonObject = query.parse(itemURL);
+
+  // IMPORTANT: have to convert [Object: null prototype] to book object
+  Object.setPrototypeOf(jsonObject, albums);
+
+  return jsonObject;
+}
 
 
 
