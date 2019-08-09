@@ -8,6 +8,7 @@ const query = require('querystring');
 app.set('port', process.env.PORT || 3000);
 app.use(express.static(__dirname + '/public')); // set location for static files
 app.use(bodyParser.urlencoded({extended: true })); // parse form submissions
+app.use('/api', require('cors')());
 
 const handlebars = require("express-handlebars");
 app.engine(".html", handlebars({extname: '.html', defaultLayout: false }));
@@ -102,6 +103,60 @@ app.post('/add', (req,res) => {
 });
 */
 
+//API Routes
+
+//get a single item
+app.get('/api/v1/album/:title', (req, res, next) => {
+  albums.findOne({title:req.params.title}, {"_id":false}, (err, item) => {
+      if (err) return next(err);
+      res.json(item);
+  })
+});
+
+//get all items
+app.get('/api/v1/albums', (req, res, next) => {
+  albums.find({},{"_id":false}, (err, items) => {
+      if (err) return next(err);
+      res.json(items);
+  })
+});
+
+//delete an item
+app.get('/api/v1/delete/:title', (req, res, next) => {
+  albums.deleteOne({title:req.params.title}, (err, item) => {
+      if (err) return next(err);
+      res.json(item);
+  })
+});
+
+
+//add & update an item
+app.post('/api/v1/add/', (req,res, next) => {
+  if (!req.body._id) {
+      let album = new albums({title:req.body.title,artist:req.body.artist,releasedate:req.body.releasedate});
+      album.save((err,newAlbum) => {
+          if (err) return next(err);
+          console.log(newAlbum)
+          res.json({updated: 0, _id: newAlbum._id});
+      });
+  } else { 
+      albums.updateOne({ _id: req.body._id}, {title:req.body.title, artist: req.body.artist, releasedate: req.body.releasedate }, (err, result) => {
+          if (err) return next(err);
+          res.json({updated: result.nModified, _id: req.body._id});
+      });
+  }
+});
+
+
+app.get('/api/v1/add/:title/:artist/:releasedate', (req,res, next) => {
+  let title = req.params.title;
+  albums.update({ title: title}, {title:title, artist: req.params.artist, releasedate: req.params.releasedate }, {upsert: true }, (err, result) => {
+      if (err) return next(err);
+      res.json({updated: result.nModified});
+  });
+});
+
+
 
 // define 404 handler
 app.use((req,res) => {
@@ -117,8 +172,6 @@ app.listen(app.get('port'), () => {
 function parseURLtoJSON(path) {
   const itemURL = path.substr(path.indexOf('?')+1);
   const jsonObject = query.parse(itemURL);
-
-  // IMPORTANT: have to convert [Object: null prototype] to book object
   Object.setPrototypeOf(jsonObject, albums);
 
   return jsonObject;
