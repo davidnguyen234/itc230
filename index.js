@@ -25,11 +25,21 @@ app.get('/', (req, res) => {
 
 
 app.get('/', (req, res) => {
+  albums.find({}, (err, items, next) => {
+      if (err) return next(err);
+      res.render('home', { albums: JSON.stringify(items)});
+  });
+});
+
+/*
+app.get('/', (req, res) => {
   albums.find({}, { '_id': false }, (err, items) => {
       if (err) return next(err);
       res.render('home', { albums: items });
   });
 });
+
+*/
 
 
 /*
@@ -169,6 +179,7 @@ app.listen(app.get('port'), () => {
   console.log('Express started');
 });
 
+
 function parseURLtoJSON(path) {
   const itemURL = path.substr(path.indexOf('?')+1);
   const jsonObject = query.parse(itemURL);
@@ -176,6 +187,7 @@ function parseURLtoJSON(path) {
 
   return jsonObject;
 }
+
 
 
 

@@ -1,12 +1,121 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
         <title>Home Page</title>
+
+        <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    
+    <style>
+
+
+    #title {
+        text-decoration: underline;
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    ul {
+        color:darkblue;
+        text-decoration: underline;
+        margin-bottom: 40px;
+    }
+
+    #root {
+        border:black solid 1px;
+        margin:20px;
+        max-width: 400px;
+        padding:10px 20px 30px 20px;
+    }
+
+
+    </style>
+
     </head>
     <body>
-        <h1>Home Page!</h1>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        class AlbumApp extends React.Component{
+          constructor(props){ 
+            super(props); 
+            this.state = {
+              items: {{{albums}}},
+              curItem: {} 
+            };
+
+    this.onClear = this.onClear.bind(this);
+    this.showDetails = this.showDetails.bind(this);
+    }
+
+    //show album details when clicked
+    showDetails(event){
+    console.log(event.target);
+    let editItem = this.state.items.find((item) => {
+        return item._id == event.target.id;
+    });
+    this.setState({curItem: editItem});
+    }
+
+    //clear details form 
+    onClear() {
+    this.setState({curItem: {}});
+    }
+
+    render() {
+    return (
+        <div>
+        <h1 id='title'>Album Store</h1>
+        <div>
+        <AlbumList
+            items={this.state.items} 
+            showDetailClick={this.showDetails}/>
+        <AlbumDetail item={this.state.curItem}/>
+        </div>
+        </div>
+        );
+      }
+    }
+    
+    /*
+    const Title = {{title}} => {
+        return (
+            <div><h2>{title}</h2></div>
+        );
+    }
+    */
+
+    const AlbumList = (props) => {
+    const albumNodes = props.items.map((item) => {
+        return <li id={item._id} key={item._id} onClick={props.showDetailClick}>{item.title}</li>
+        });
+    return (
+        <div>
+            <h3>Album List</h3>
+            <ul>{albumNodes}</ul>
+        </div>
+        );
+    }
+
+    const AlbumDetail = (props) => {
+        return (
+            <div>
+                Title: {props.item.title}<br/>
+                Artist: {props.item.artist}<br/>
+                Release Date: {props.item.releasedate}<br/>
+            </div>
+        );
+    }
+
+ReactDOM.render(<AlbumApp />, document.getElementById('root'));
+</script>
 
 
+<!--
     <form action="/detail" method="POST">
         <legend>Search for an Album: </legend><br>
         <input type="text" name="title">
@@ -36,7 +145,7 @@
             {{/if}}
     </div><br>
 
-    <!-- API form -->
+
     <form action="/api/v1/add/" method="POST">
         <h2>API Add or Update Album</h2><br>
         <label for="title">Title: </label>
@@ -58,6 +167,8 @@
             {{/each}}
 
     </div>
+
+-->
 
     </body>
 </html>
