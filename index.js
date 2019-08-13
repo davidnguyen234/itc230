@@ -9,6 +9,7 @@ app.set('port', process.env.PORT || 3000);
 app.use(express.static(__dirname + '/public')); // set location for static files
 app.use(bodyParser.urlencoded({extended: true })); // parse form submissions
 app.use('/api', require('cors')());
+app.use(bodyParser.json());
 
 const handlebars = require("express-handlebars");
 app.engine(".html", handlebars({extname: '.html', defaultLayout: false }));
@@ -132,8 +133,8 @@ app.get('/api/v1/albums', (req, res, next) => {
 });
 
 //delete an item
-app.get('/api/v1/delete/:title', (req, res, next) => {
-  albums.deleteOne({title:req.params.title}, (err, item) => {
+app.get('/api/v1/delete/:id', (req, res, next) => {
+  albums.deleteOne({"_id":req.params.id}, (err, item) => {
       if (err) return next(err);
       res.json(item);
   })
